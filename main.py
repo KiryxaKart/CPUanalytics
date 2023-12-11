@@ -2,17 +2,16 @@
 # v0.1.0
 # KiryxaProger
 
-import json
 import ctypes
-import sys
+import json
 import os
+import sys
 
-import customtkinter as ctk
-import psutil
 import cpuinfo
+import customtkinter as ctk
 import keyboard
+import psutil
 import pywinstyles
-
 from PIL import Image
 
 class Main(ctk.CTk):
@@ -24,14 +23,15 @@ class Main(ctk.CTk):
             self.settings = json.load(file)
 
         # Settings variables
-        # ----------------------------------------------------------------------------
-        self.THEME = self.settings['Theme']                      # Application theme
-        self.CPU_NAME = cpuinfo.get_cpu_info()['brand_raw']      # CPU name
+        # -------------------------------------------------------------------------------
+        self.THEME = self.settings['Theme']                         # Application theme
+        self.CPU_NAME = cpuinfo.get_cpu_info()\
+            ['brand_raw'].replace('(R)', '®').replace('(TM)', '™')  # CPU name
 
-        self.LIST_BARS = []                                      # List of bars
-        self.LIST_HEIGHTS = []                                   # List of bar heights
-        self.COLOR = None                                        # Default color
-        # ----------------------------------------------------------------------------
+        self.LIST_BARS = []                                         # List of bars
+        self.LIST_HEIGHTS = []                                      # List of bar heights
+        self.COLOR = None                                           # Default color
+        # -------------------------------------------------------------------------------
 
         # Theme settings
         # -----------------------------------------------
@@ -48,17 +48,14 @@ class Main(ctk.CTk):
         self.iconbitmap(f'{self.THEME}\\icon.ico')
         # ----------------------------------------
 
-        # Color depending on the theme
-        if self.THEME == 'Light':
-            self.hover_color = '#ebebeb'
-            self.active_color = '#aaaaaa'
-            self.frame_color = '#ffffff'
-            self.text_color = '#000000'
-        elif self.THEME == 'Dark':
-            self.hover_color = '#444444'
-            self.active_color = '#202020'
-            self.frame_color = '#202020'
-            self.text_color = '#ffffff'
+        colors = self.settings['Colors'][self.settings['Theme']]
+        # Color depending
+        self.text_color = colors['text']
+        self.hover_color = colors['hover']
+        self.active_color = colors['active']
+        self.frame_color = colors['main_frame']
+        self.menu_frame_color = colors['menu_frame']
+        self.transparent_color = 'transparent'
 
         # -----------------------------------------------------------------
         # MENU FRAME
@@ -68,7 +65,8 @@ class Main(ctk.CTk):
             width=48,
             height=400,
             corner_radius=0,
-            border_width=0
+            border_width=0,
+            bg_color=self.menu_frame_color
         )
 
         # 'Home' button
@@ -79,9 +77,9 @@ class Main(ctk.CTk):
             width=30,
             height=30,
             corner_radius=7,
-            bg_color='transparent',
-            fg_color='transparent',
-            hover_color=self.hover_color,
+            bg_color=self.transparent_color,
+            fg_color=self.active_color,
+            hover_color=self.active_color,
             command=self.home_menu_open
         )
 
@@ -89,6 +87,19 @@ class Main(ctk.CTk):
         self.history_menu_el = ctk.CTkButton(                      # Button
             master=self.menu_frame,
             image=self.open_image('history_menu_el.png'),
+            text='',
+            width=30,
+            height=30,
+            corner_radius=7,
+            bg_color=self.transparent_color,
+            fg_color=self.transparent_color,
+            hover_color=self.hover_color
+        )
+
+        # 'History' button
+        self.settings_menu_el = ctk.CTkButton(                    # Button
+            master=self.menu_frame,
+            image=self.open_image('settings_menu_el.png'),
             text='',
             width=30,
             height=30,
@@ -102,6 +113,7 @@ class Main(ctk.CTk):
         self.menu_frame.place(x=0, y=0)                            #  Frame
         self.home_menu_el.place(x=5, y=5)                          # Button
         self.history_menu_el.place(x=5, y=40)                      # Button
+        self.settings_menu_el.place(x=5, y=365)                    # Button
 
         # -----------------------------------------------------------------
         #
@@ -123,7 +135,7 @@ class Main(ctk.CTk):
             width=700,
             height=35,
             text='',
-            font=('Segoe UI Bolder', 25),
+            font=('Segoe UI Bold', 25),
             text_color=self.text_color,
             anchor='w'
         )
@@ -145,12 +157,13 @@ class Main(ctk.CTk):
 
         # CPU name in the middle
         self.cpu_name_label = ctk.CTkLabel(                        #  Label
-            master=self.home_frame,
+            master=self.monitoring_frame,
             width=619,
             height=35,
             text=self.CPU_NAME,
             font=('Segoe UI', 15),
-            text_color=self.text_color
+            text_color=self.text_color,
+            bg_color=self.frame_color
         )
 
         # CPU percentages
@@ -166,17 +179,18 @@ class Main(ctk.CTk):
 
         # Placement of objects --------------------------------------------
         self.monitoring_frame.place(x=17, y=50)                    #  Frame
-        self.cpu_name_label.place(x=17, y=75, anchor='w')          #  Label
+        self.cpu_name_label.place(x=0, y=25, anchor='w')           #  Label
         self.cpu_percent_label.place(x=600, y=220, anchor='e')     #  Label
 
         for i in range(0, 153, 38):                                #   line
             line = ctk.CTkFrame(
-                self.home_frame,
+                self.monitoring_frame,
                 width=620,
-                height=1,
-                fg_color='grey'
+                height=2,
+                corner_radius=0,
+                fg_color=self.frame_color
             )
-            line.place(x=17, y=250-i)
+            line.place(x=0, y=48+i)
 
         # -----------------------------------------------------------------
         # CPU RELOAD FRAME
@@ -214,7 +228,14 @@ class Main(ctk.CTk):
         self.reload_frame.place(x=17, y=305)                       #  Frame
         self.reload_button.place(x=505, y=10)                      # Button
         self.reload_label.place(x=10, y=7.5)                       # Button
+
         # -----------------------------------------------------------------
+        #
+        # ФРЕЙМ ЖУРНАЛ ПРИЛОЖЕНИЙ ---------------------------------- ЖУРНАЛ
+        #
+        # -----------------------------------------------------------------
+        
+
 
         # Set language
         self.install_language(self.settings['Language'])
@@ -222,7 +243,8 @@ class Main(ctk.CTk):
         # Monitoring CPU percent and create Frames (bars)
         self.cpu_monitoring()
 
-        self.set_blur()
+        if self.settings['Blur']:
+            self.set_blur()
 
     def open_image(self, path: str) -> ctk.CTkImage:
         '''
@@ -312,9 +334,8 @@ class Main(ctk.CTk):
         # If the number of bars exceeds 29, remove the oldest one (last in the list)
         if len(self.LIST_BARS) > 29 and len(self.LIST_HEIGHTS) > 29:
             old_bar = self.LIST_BARS.pop()
-            old_bar.destroy()
-
             self.LIST_HEIGHTS.pop()
+            old_bar.destroy()
 
         # Place all bars on the graph
         for i, widget in enumerate(self.LIST_BARS):
@@ -324,7 +345,8 @@ class Main(ctk.CTk):
         self.cpu_percent_label.configure(text=f'{value}%', text_color=self.COLOR)
 
         # Loop the function to update the graph every 500 milliseconds
-        self.after(500, self.cpu_monitoring)
+        self.func_after = self.after(500, self.cpu_monitoring)
+        #self.after_cancel(self.func_after)
 
 
     def cpu_reload(self):
@@ -355,10 +377,6 @@ class Main(ctk.CTk):
     def set_blur(self) -> None:
         pywinstyles.apply_style(self, 'aero') # Apply aero style
         pywinstyles.change_header_color(self, color='#172833') # Change header color
-
-    def restart_app(self):
-        program = sys.executable
-        os.execl(program, program, *sys.argv)
 
 if __name__ == '__main__':
     app = Main() # Create an instance of the class
