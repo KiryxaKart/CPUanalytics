@@ -1,0 +1,14 @@
+{
+    "english": {
+        "Home": "Home",
+        "Reload": "Reload"
+    },
+    "russian": {
+        "Home": "Главная",
+        "Reload": "Перезагрузить"
+    },
+    "german": {
+        "Home": "Heim",
+        "Reload": "Neu laden"
+    }
+}

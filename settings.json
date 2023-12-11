@@ -1,0 +1,22 @@
+{
+    "Theme": "Dark",
+    "Blur": true,
+    "ColorTheme": "default",
+    "Language": "russian",
+    "Colors": {
+        "Light": {
+            "text": "#000000",
+            "menu_frame": "dbdbdb",
+            "main_frame": "#ffffff",
+            "hover": "#ebebeb",
+            "active": "#aaaaaa"
+        },
+        "Dark": {
+            "text":"#ffffff",
+            "menu_frame": "2b2b2b",
+            "main_frame": "#202020",
+            "hover": "#444444",
+            "active": "#555555"
+        }
+    }
+}
