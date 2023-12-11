@@ -380,4 +380,3 @@ class Main(ctk.CTk):
 
 if __name__ == '__main__':
     app = Main() # Create an instance of the class
-    app.mainloop() # Start the application
